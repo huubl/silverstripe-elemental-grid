@@ -5,6 +5,7 @@ namespace TheWebmen\ElementalGrid\Models;
 use DNADesign\Elemental\Models\BaseElement;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\TextField;
+use SilverStripe\Core\Config\Config;
 use TheWebmen\ElementalGrid\Controllers\ElementRowController;
 
 class ElementRow extends BaseElement
@@ -41,6 +42,17 @@ class ElementRow extends BaseElement
     public function getType()
     {
         return _t(__CLASS__ . '.BlockType', 'Row');
+    }
+    
+    public function RowClass()
+    {
+        switch (Config::forClass('TheWebmen\ElementalGrid')->get('cssFramework')){
+            case 'bulma':
+                return 'columns is-multiline';
+                break;
+            default:
+                return 'row';
+        }
     }
 
 }

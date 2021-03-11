@@ -12,6 +12,11 @@ class BaseElementExtension extends \SilverStripe\ORM\DataExtension {
      * @config
      */
     private static $num_columns = 12;
+    
+    /**
+     * @config
+     */
+    private static $default_col_size = 6;
 
     /**
      * @var array
@@ -38,7 +43,7 @@ class BaseElementExtension extends \SilverStripe\ORM\DataExtension {
     public function populateDefaults()
     {
         $defaultSizeField = 'Size' . Config::forClass('TheWebmen\ElementalGrid')->get('defaultSizeField');
-        $this->owner->$defaultSizeField = 6;
+        $this->owner->$defaultSizeField = Config::forClass('TheWebmen\ElementalGrid\Extensions\BaseElementExtension')->get('default_col_size');
     }
 
     /**
@@ -103,7 +108,7 @@ class BaseElementExtension extends \SilverStripe\ORM\DataExtension {
             $fields->addFieldToTab('Root.Column', DropdownField::create('VisibilitySM', _t(__CLASS__ . '.VISIBILITY_SM', 'Visibility SM'), self::getColVisibilityOptions()));
 
             $fields->addFieldToTab('Root.Column', HeaderField::create('HeadingMD', _t(__CLASS__ . '.MD', 'MD')));
-            $fields->addFieldToTab('Root.Column', DropdownField::create('SizeMD', _t(__CLASS__ . '.SIZE_MD', 'Size MD'), self::getColSizeOptions()));
+            $fields->addFieldToTab('Root.Column', DropdownField::create('SizeMD', _t(__CLASS__ . '.SIZE_MD', 'Size MD'), self::getColSizeOptions(true)));
             $fields->addFieldToTab('Root.Column', DropdownField::create('OffsetMD', _t(__CLASS__ . '.OFFSET_MD', 'Offset MD'), self::getColSizeOptions(false, true)));
             $fields->addFieldToTab('Root.Column', DropdownField::create('VisibilityMD', _t(__CLASS__ . '.VISIBILITY_MD', 'Visibility MD'), self::getColVisibilityOptions()));
 
@@ -160,6 +165,63 @@ class BaseElementExtension extends \SilverStripe\ORM\DataExtension {
             $classes .= ' ' . $this->owner->VisibilityLG . '-lg';
         }
         return $classes;
+    }
+
+    /**
+     * @return string
+     */
+    public function BulmaColClasses(){
+        //Col options
+        $classes = '';
+        if($this->owner->SizeXS){
+            $classes .= ' column is-' . $this->owner->SizeXS . '-mobile';
+        }
+        if($this->owner->SizeSM){
+            $classes .= ' column is-' . $this->owner->SizeSM . '-tablet';
+        }
+        if($this->owner->SizeMD){
+            $classes .= ' column is-' . $this->owner->SizeMD . '-desktop';
+        }
+        if($this->owner->SizeLG){
+            $classes .= ' column is-' . $this->owner->SizeLG . '-widescreen';
+        }
+        //Offset options
+        if($this->owner->OffsetXS){
+            $classes .= ' column is-offset-' . $this->owner->OffsetXS . '-mobile';
+        }
+        if($this->owner->OffsetSM){
+            $classes .= ' column is-offset-' . $this->owner->OffsetSM . '-tablet';
+        }
+        if($this->owner->OffsetMD){
+            $classes .= ' column is-offset-' . $this->owner->OffsetMD . '-desktop';
+        }
+        if($this->owner->OffsetLG){
+            $classes .= ' column is-offset-' . $this->owner->OffsetLG . '-widescreen';
+        }
+        //Visibility options
+        if($this->owner->VisibilityXS && $this->owner->VisibilityXS != 'default'){
+            $classes .= ' column is-' . $this->owner->VisibilityXS . '-mobile';
+        }
+        if($this->owner->VisibilitySM && $this->owner->VisibilitySM != 'default'){
+            $classes .= ' column is-' . $this->owner->VisibilitySM . '-tablet-only';
+        }
+        if($this->owner->VisibilityMD && $this->owner->VisibilityMD != 'default'){
+            $classes .= ' column is-' . $this->owner->VisibilityMD . '-desktop-only';
+        }
+        if($this->owner->VisibilityLG && $this->owner->VisibilityLG != 'default'){
+            $classes .= ' column is-' . $this->owner->VisibilityLG . '-widescreen-only is-' . $this->owner->VisibilityLG . '-fullhd';
+        }
+        return $classes;
+    }
+
+    public function ColClasses() {
+        switch (Config::forClass('TheWebmen\ElementalGrid')->get('cssFramework')){
+            case 'bulma':
+                return $this->BulmaColClasses();
+                break;
+            default:
+                return $this->BootstrapColClasses();
+        }
     }
 
     public function getBlockType(){
